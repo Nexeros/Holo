@@ -1218,11 +1218,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\picas\\Desktop\\Holo-main\\HoloTest\\HoloTest\\HoloTest.csproj",
+      "projectUniqueName": "C:\\Users\\picas\\Desktop\\Holo-main\\HoloTest2\\HoloTest\\HoloTest.csproj",
       "projectName": "HoloTest",
-      "projectPath": "C:\\Users\\picas\\Desktop\\Holo-main\\HoloTest\\HoloTest\\HoloTest.csproj",
+      "projectPath": "C:\\Users\\picas\\Desktop\\Holo-main\\HoloTest2\\HoloTest\\HoloTest.csproj",
       "packagesPath": "C:\\Users\\picas\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\picas\\Desktop\\Holo-main\\HoloTest\\HoloTest\\obj\\",
+      "outputPath": "C:\\Users\\picas\\Desktop\\Holo-main\\HoloTest2\\HoloTest\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -28,8 +28,8 @@ namespace HoloTest
             //System.IO.File.AppendAllText("log.txt", "Twoja wiadomość\n");
             //System.Diagnostics.Debug.WriteLine("Twoja wiadomość debugowania");
             string dicomFolderPath = "C:\\Users\\picas\\Desktop\\NEural\\STU00001\\SER00001";
-            double thresholdmin = -6;
-            double thresholdmax = 4;
+            double thresholdmin = -10777216;
+            double thresholdmax = -1;
             //VolumeProcessor.Test("C:\\Users\\picas\\Desktop\\NEural\\STU00001\\SER00001\\IMG00001");
             double[,,] volumeData = VolumeProcessor.LoadVolume(dicomFolderPath, thresholdmin, thresholdmax);
             System.Diagnostics.Debug.WriteLine("------------");
@@ -71,6 +71,7 @@ namespace HoloTest
                 {
                     for (int x = 0; x < width; x++)
                     {
+                        //optymalizuj te coś
                         slice[x, y] = pixels[y * width + x];
                         
                     }
@@ -79,16 +80,16 @@ namespace HoloTest
             }
             System.Diagnostics.Debug.WriteLine($"Width: {width}; Height: {height}; Depth: {depth}");
             double[,,] volume = new double[width, height, depth];
-            for (int z = 0; z < depth; z+=10)
+            for (int z = 0; z < depth; z++)
             {
-                for (int y = 0; y < height; y+=10)
+                for (int y = 0; y < height; y+=5)
                 {
-                    for (int x = 0; x < width; x+=10)
+                    for (int x = 0; x < width; x+=5)
                     {
                         if (slices[z][y, x] >= thresholdmin && slices[z][y, x] <= thresholdmax) 
                         {
                             volume[x, y, z] = slices[z][y, x];
-                            System.Diagnostics.Debug.WriteLine($"V0: {volume[x, y, z]}");
+                            //System.Diagnostics.Debug.WriteLine($"V0: {volume[x, y, z]}");
                         }
                         //volume[x, y, z] = slices[z][y, x];
                         
@@ -172,18 +173,18 @@ namespace HoloTest
             int height = volumeData.GetLength(1);
             int depth = volumeData.GetLength(2);
             System.Diagnostics.Debug.WriteLine($"Min: {volumeData.Cast<double>().Min()}, Max: {volumeData.Cast<double>().Max()}");
-            for (int x = 0; x < width; x+=10)
+            for (int x = 0; x < width; x+=5)
             {
-                for(int y = 0;y < height; y+=10)
+                for(int y = 0;y < height; y+=5)
                 {
-                    for(int z = 0; z < depth; z += 10)
+                    for(int z = 0; z < depth; z ++)
                     {
                         //System.Diagnostics.Debug.WriteLine($"V1/2: {volumeData[x, y, z]}");
-                        //if (volumeData[x, y, z] >= thresholdmin && volumeData[x, y, z] <= thresholdmax)
-                        if (volumeData[x,y,z] == -1)
+                        if (volumeData[x, y, z] >= thresholdmin && volumeData[x, y, z] <= thresholdmax)
+                        //if (volumeData[x,y,z] == -1)
                         {
-                            meshBuilder.AddBox(new Point3D(x,y,z), 1, 1, 1);
-                            System.Diagnostics.Debug.WriteLine($"V1: {volumeData[x, y, z]}");
+                            meshBuilder.AddBox(new Point3D(x,y,z/2), 1, 1, 1);
+                            //System.Diagnostics.Debug.WriteLine($"V1: {volumeData[x, y, z]}");
                         }
                     }
                 }

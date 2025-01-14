@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "i6NpmOP8wLUT4v32nrh3K4gTCzxdFv+0r9rPHGr5o4qdl2IFB4Uu/9vJ/InblJokxvAMzJQfS+u/XNZgVLJIuQ==",
+  "dgSpecHash": "1+k130Mb048F6UmCeDPxo/7VvMExgmMDVqyMM41VKtZbwQZDopqJ8Vz7dx1gSOvlV22NasskuBmkcBiPrCgi5w==",
   "success": true,
-  "projectFilePath": "C:\\Users\\picas\\Desktop\\Holo-main\\HoloTest\\HoloTest\\HoloTest.csproj",
+  "projectFilePath": "C:\\Users\\picas\\Desktop\\Holo-main\\HoloTest2\\HoloTest\\HoloTest.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\picas\\.nuget\\packages\\communitytoolkit.highperformance\\8.3.2\\communitytoolkit.highperformance.8.3.2.nupkg.sha512",
     "C:\\Users\\picas\\.nuget\\packages\\fo-dicom\\5.1.5\\fo-dicom.5.1.5.nupkg.sha512",
