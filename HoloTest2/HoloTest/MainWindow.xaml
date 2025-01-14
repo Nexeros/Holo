@@ -1,0 +1,39 @@
+﻿<Window x:Class="HoloTest.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:h="http://helix-toolkit.org/wpf"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="DICOM Viewer" Height="800" Width="800">
+    <Grid>
+        <!-- HelixViewport3D for 3D rendering -->
+        <h:HelixViewport3D x:Name="viewport" ZoomExtentsWhenLoaded="True">
+            <!-- Camera setup -->
+            <h:HelixViewport3D.Camera>
+                <PerspectiveCamera Position="0,0,200" LookDirection="0,0,-1" UpDirection="0,1,0" FieldOfView="45"/>
+            </h:HelixViewport3D.Camera>
+
+            <!-- Default lighting setup -->
+            <h:DefaultLights/>
+
+            <!-- Optional: Add a sample 3D model here for testing -->
+            <!-- Uncomment to include a sample model -->
+            <!--
+            <ModelVisual3D>
+                <ModelVisual3D.Content>
+                    <GeometryModel3D>
+                        <GeometryModel3D.Geometry>
+                            <MeshGeometry3D Positions="-50,-50,-50 50,-50,-50 50,50,-50 -50,50,-50 -50,-50,50 50,-50,50 50,50,50 -50,50,50"
+                                            TriangleIndices="0 1 2 2 3 0 4 5 6 6 7 4 0 4 7 7 3 0 1 5 6 6 2 1 3 7 6 6 2 3 0 4 5 5 1 0"/>
+                        </GeometryModel3D.Geometry>
+                        <GeometryModel3D.Material>
+                            <DiffuseMaterial Brush="Red"/>
+                        </GeometryModel3D.Material>
+                    </GeometryModel3D>
+                </ModelVisual3D.Content>
+            </ModelVisual3D>
+            -->
+        </h:HelixViewport3D>
+    </Grid>
+</Window>
