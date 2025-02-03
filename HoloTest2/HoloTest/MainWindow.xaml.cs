@@ -25,40 +25,82 @@ namespace HoloTest
         public MainWindow()
         {
             InitializeComponent();
-            //System.IO.File.AppendAllText("log.txt", "Twoja wiadomość\n");
-            //System.Diagnostics.Debug.WriteLine("Twoja wiadomość debugowania");
-            string dicomFolderPath = "C:\\Users\\picas\\Desktop\\NEural\\STU00001\\SER00001";
-            double thresholdmin = -10777216;
-            double thresholdmax = -1;
-            //VolumeProcessor.Test("C:\\Users\\picas\\Desktop\\NEural\\STU00001\\SER00001\\IMG00001");
-            double[,,] volumeData = VolumeProcessor.LoadVolume(dicomFolderPath, thresholdmin, thresholdmax);
-            System.Diagnostics.Debug.WriteLine("------------");
-            System.Diagnostics.Debug.WriteLine($"Min: {volumeData.Cast<double>().Min()}, Max: {volumeData.Cast<double>().Max()}");
-            //Thread.Sleep(100);
-            System.Diagnostics.Debug.WriteLine("------------");
-            var mesh = VolumeRender.GenerateVolumeMesh(volumeData, thresholdmin, thresholdmax);
-            var model = new GeometryModel3D
-            {
-                Geometry = mesh,
-                Material = MaterialHelper.CreateMaterial(System.Windows.Media.Colors.Red)
-            };
-            viewport.Children.Add(new ModelVisual3D { Content = model });
+            try {
+                string dicomFolderPath = $"C:\\Users\\picas\\Desktop\\NEural\\STU00001\\SER0000{1}";
+                double thresholdmin = -10777216;
+                double thresholdmax = -1;
+                (double[,,] volumeData, double spacing, double thikness) = VolumeProcessor.LoadVolume(dicomFolderPath, thresholdmin, thresholdmax);
+                //System.Diagnostics.Debug.WriteLine("------------");
+                //System.Diagnostics.Debug.WriteLine($"Min: {volumeData.Cast<double>().Min()}, Max: {volumeData.Cast<double>().Max()}");
+                //System.Diagnostics.Debug.WriteLine("------------");
+                var mesh = VolumeRender.GenerateVolumeMesh(volumeData, thresholdmin, thresholdmax, spacing, thikness);
+                var model = new GeometryModel3D
+                {
+                    Geometry = mesh,
+                    Material = MaterialHelper.CreateMaterial(System.Windows.Media.Colors.Red)
+                };
+                viewport.Children.Add(new ModelVisual3D { Content = model });
+            }
+            catch (Exception ex) {
+                System.Diagnostics.Debug.WriteLine($"Error: {ex}");
+            }
         }
     }
 
     class VolumeProcessor
     {
-        public static double[,,] LoadVolume(string path, double thresholdmin, double thresholdmax)
+        public static (double[,,], double, double) LoadVolume(string path, double thresholdmin, double thresholdmax)
         {
             var files = System.IO.Directory.GetFiles(path);
-            Array.Sort(files);
+            System.Diagnostics.Debug.WriteLine($"File0: {files[0]}");
+            files = files
+    .Select(file =>
+    {
+            var dicomFile = DicomFile.Open(file);
+            var instanceNumber = dicomFile.Dataset.GetString(DicomTag.InstanceNumber);
+            return new { FilePath = file, InstanceNumber = int.Parse(instanceNumber) };
+    })
+    .OrderBy(f => f.InstanceNumber)
+    .Select(f => f.FilePath)
+    .ToArray();
+            double spacing = 1.00;
+            double thikness = 1.00;
             int width = 0;
             int height = 0;
             int depth = files.Length;
             List<double[,]> slices = new List<double[,]>();
+            try
+            {
+                var dicomdatafile = DicomFile.Open(files[0]);
+                var dataset = dicomdatafile.Dataset;
+                spacing = Convert.ToDouble(dicomdatafile.Dataset.GetString(DicomTag.PixelSpacing).Substring(0, 5).Replace(".", ","));
+                thikness = Convert.ToDouble(dicomdatafile.Dataset.GetString(DicomTag.SliceThickness).Replace(".", ","));
+                foreach (var item in dataset)
+                {
+                    try
+                    {
+                        //Slice Thickness, Value: 0.5 (mm)
+                        //Image Position (Patient), Value: -112.910
+                        //Image Orientation (Patient), Value: 1.00000
+                        //Pixel Spacing, Value: 0.429
+                        //
+                        System.Diagnostics.Debug.WriteLine($"Tag: {item.Tag}, Name: {item.Tag.DictionaryEntry.Name}, Value: {dataset.GetValueOrDefault(item.Tag, 0, string.Empty)}");
+                    }
+                    catch(Exception ex) {
+                        System.Diagnostics.Debug.WriteLine($"Error: {ex}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error: {ex}");
+            }
+            
+            
             foreach (var file in files)
             {
                 var dicomFile = DicomFile.Open(file);
+                
                 var image = new DicomImage(dicomFile.Dataset);
                 if (width == 0 || height == 0)
                 {
@@ -89,21 +131,15 @@ namespace HoloTest
                         if (slices[z][y, x] >= thresholdmin && slices[z][y, x] <= thresholdmax) 
                         {
                             volume[x, y, z] = slices[z][y, x];
-                            //System.Diagnostics.Debug.WriteLine($"V0: {volume[x, y, z]}");
                         }
-                        //volume[x, y, z] = slices[z][y, x];
-                        
-
                     }
                 }
             }
             System.Diagnostics.Debug.WriteLine("------------");
-            return volume;
+            return (volume, spacing, thikness);
         }
         public static void Test(string path)
         {
-            
-      
             string dicomFilePath = path;
             var dicomFile = DicomFile.Open(dicomFilePath);
             var image = new DicomImage(dicomFile.Dataset);
@@ -118,7 +154,6 @@ namespace HoloTest
             for(int i = 0 ; i < count-1; i++)
             {
                 ipix[i] = pixels[i];
-                
             }
 
             // Parametry histogramu
@@ -166,31 +201,31 @@ namespace HoloTest
     }
     class VolumeRender
     {
-        public static MeshGeometry3D GenerateVolumeMesh(double[,,] volumeData, double thresholdmin, double thresholdmax)
+        public static MeshGeometry3D GenerateVolumeMesh(double[,,] volumeData, double thresholdmin, double thresholdmax, double spacing, double thikness)
         {
             var meshBuilder = new MeshBuilder();
             int width = volumeData.GetLength(0);
             int height = volumeData.GetLength(1);
             int depth = volumeData.GetLength(2);
             System.Diagnostics.Debug.WriteLine($"Min: {volumeData.Cast<double>().Min()}, Max: {volumeData.Cast<double>().Max()}");
-            for (int x = 0; x < width; x+=5)
+            //Pixel Spacing, Value: 0.429
+            //Slice Thickness, Value: 0.5 (mm)
+            for (int x = 0; x < width; x+=1)
             {
-                for(int y = 0;y < height; y+=5)
+                for(int y = 0;y < height; y+=1)
                 {
                     for(int z = 0; z < depth; z ++)
                     {
-                        //System.Diagnostics.Debug.WriteLine($"V1/2: {volumeData[x, y, z]}");
                         if (volumeData[x, y, z] >= thresholdmin && volumeData[x, y, z] <= thresholdmax)
-                        //if (volumeData[x,y,z] == -1)
                         {
-                            meshBuilder.AddBox(new Point3D(x,y,z/2), 1, 1, 1);
-                            //System.Diagnostics.Debug.WriteLine($"V1: {volumeData[x, y, z]}");
+                            meshBuilder.AddBox(new Point3D(x*spacing,y*spacing,z*thikness), 1, 1, 1);
                         }
+                        //break;
                     }
                 }
+                
             }
             return meshBuilder.ToMesh();
-
         }
     }
 }
